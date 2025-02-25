@@ -67,40 +67,61 @@
             <label>請輸入 20 位參賽者姓名 (每行一位)</label>
             <textarea id="names" placeholder="輸入姓名...">A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT</textarea>
         </div>
-        <button onclick="drawLottery()">抽獎</button>
+        <div class="input-area">
+            <label>請輸入 10 個獎項及 3 個加碼獎 (每行一個)</label>
+            <textarea id="prizes" placeholder="輸入獎項...">頭獎\n二獎\n三獎\n四獎\n五獎\n六獎\n七獎\n八獎\n九獎\n十獎\n加碼獎1\n加碼獎2\n加碼獎3</textarea>
+        </div>
+        <button onclick="drawNextPrize()">抽取下一個獎項</button>
         <div class="result" id="winner"></div>
     </div>
 
     <script>
-        function drawLottery() {
-            let namesText = document.getElementById('names').value.trim();
-            let names = namesText.split('\n').map(name => name.trim()).filter(name => name !== "");
-
-            if (names.length !== 20) {
-                alert("請輸入剛好 20 位參賽者！");
-                return;
-            }
-
-            let prizeCategories = ["頭獎", "二獎", "三獎", "四獎", "五獎", "六獎", "七獎", "八獎", "九獎", "十獎", "加碼獎1", "加碼獎2", "加碼獎3"];
-            let winners = [];
-
-            while (winners.length < 13) {
-                let randomIndex = Math.floor(Math.random() * names.length);
-                let winner = names[randomIndex];
-                if (!winners.includes(winner)) {
-                    winners.push(winner);
+        let names = [];
+        let prizes = [];
+        let winners = [];
+        let currentPrizeIndex = 0;
+        
+        function drawNextPrize() {
+            if (names.length === 0 || prizes.length === 0) {
+                let namesText = document.getElementById('names').value.trim();
+                names = namesText.split('\n').map(name => name.trim()).filter(name => name !== "");
+                
+                let prizesText = document.getElementById('prizes').value.trim();
+                prizes = prizesText.split('\n').map(prize => prize.trim()).filter(prize => prize !== "");
+                
+                if (names.length !== 20) {
+                    alert("請輸入剛好 20 位參賽者！");
+                    names = [];
+                    return;
+                }
+                if (prizes.length !== 13) {
+                    alert("請輸入剛好 13 個獎項！");
+                    prizes = [];
+                    return;
                 }
             }
-
-            let resultText = "";
-            for (let i = 0; i < winners.length; i++) {
-                resultText += `<p>${prizeCategories[i]}: ${winners[i]}</p>`;
+            
+            if (currentPrizeIndex >= prizes.length) {
+                alert("所有獎項已抽取完畢！");
+                return;
             }
-
+            
+            let availableNames = names.filter(name => !winners.includes(name));
+            if (availableNames.length === 0) {
+                alert("沒有剩餘的參賽者！");
+                return;
+            }
+            
+            let randomIndex = Math.floor(Math.random() * availableNames.length);
+            let winner = availableNames[randomIndex];
+            winners.push(winner);
+            
             let resultDiv = document.getElementById('winner');
-            resultDiv.innerHTML = resultText;
+            resultDiv.innerHTML = `<p>${prizes[currentPrizeIndex]}: ${winner}</p>`;
             resultDiv.style.display = 'block';
             resultDiv.classList.add('fade-in');
+            
+            currentPrizeIndex++;
         }
     </script>
 </body>
